@@ -15,10 +15,6 @@ load_dotenv(verbose=True)
 
 logger = get_logger(__name__)
 
-def testFn(strInput):
-    return strInput + "..테스트"
-
-
 def read_product_list(file_path):
     try:
         data = pd.read_csv(file_path)
@@ -53,14 +49,17 @@ def find_similar_products(user_query, product_data):
     sorted_products = product_data.sort_values('Similarity')
     
     # 가장 유사한 제품 찾기
-    best_match = sorted_products.iloc[0]
-    if best_match['Similarity'] == 0:
-        return f"일치하는 제품: NO {best_match['NO']}, 제품명: {best_match['제품명']}"
-    else:
-        # 일치하는 제품이 없는 경우, 가장 유사한 상위 3개의 제품 반환
-        top_3_matches = sorted_products.head(3)
-        return top_3_matches[['NO', '제품명', 'Similarity']].to_string(index=False)
-
+    #best_match = sorted_products.iloc[0]
+    #if best_match['Similarity'] == 0:
+    #    return f"일치하는 제품: NO {best_match['NO']}, 제품명: {best_match['제품명']}"
+    #else:
+    #    # 일치하는 제품이 없는 경우, 가장 유사한 상위 3개의 제품 반환
+    #    top_3_matches = sorted_products.head(3)
+    #    return top_3_matches[['NO', '제품명', 'Similarity']].to_string(index=False)
+    #top_3_matches = sorted_products.head(3)
+    #return top_3_matches[['구분', '대분류', 'NO', '제품명', 'Similarity']].to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
+    
 def find_similar_products_hamming(user_query, product_data):
     # Hamming Distance를 이용하여 가장 유사한 제품 찾기
     # Hamming Distance는 두 문자열의 길이가 동일해야 하므로, 길이를 맞춤
@@ -76,7 +75,8 @@ def find_similar_products_hamming(user_query, product_data):
     # 유사도(낮은 값이 더 유사함)에 따라 제품들 정렬
     sorted_products = product_data.sort_values('Similarity')
 
-    return sorted_products[['NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
 
 def find_similar_products_fuzzywuzzy(user_query, product_data):
     # FuzzyWuzzy를 이용하여 가장 유사한 제품 찾기
@@ -87,7 +87,8 @@ def find_similar_products_fuzzywuzzy(user_query, product_data):
     # 유사도(높은 값이 더 유사함)에 따라 제품들 정렬
     sorted_products = product_data.sort_values('Similarity', ascending=False)
 
-    return sorted_products[['NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
     
 
 def ngram_similarity(text1, text2, n=2):
@@ -109,7 +110,8 @@ def find_similar_products_ngram(user_query, product_data, n=2):
     # 유사도(높은 값이 더 유사함)에 따라 제품들 정렬
     sorted_products = product_data.sort_values('Similarity', ascending=False)
 
-    return sorted_products[['NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
 
 
 def find_similar_products_sequence_matching(user_query, product_data):
@@ -133,7 +135,8 @@ def find_similar_products_sequence_matching(user_query, product_data):
     return sorted_products.head(3).to_string(index=False)
 
 # 예시 파일 경로와 사용자 질문
-file_path = "/Users/komasin4/Data/maum.ai/pulmuwon/prodlist_2.csv"
+#file_path = "/Users/komasin4/Data/maum.ai/pulmuwon/prodlist_2.csv"
+file_path = "/Users/komasin4/Data/maum.ai/pulmuwon/mergelist_1.csv"
 # 제품 목록 읽기
 product_data = read_product_list(file_path)
 
