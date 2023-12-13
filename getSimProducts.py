@@ -168,7 +168,8 @@ elif st.session_state.action_step == 1:
     
     with st.spinner('제품에 대해 문의 중입니다. 잠시만 기다려주세요...'):
         answer = call_openai_chat('question', new_question)
-        st.text_area("답변", answer)
+        st.write("답변")
+        st.write(answer)
 
     print("3|", question, "|", st.session_state.prev_question)
 
