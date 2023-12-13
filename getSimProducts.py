@@ -171,10 +171,11 @@ elif st.session_state.action_step == 1:
         print("st.session_state.selected_item", st.session_state.selected_item)
         print(st.session_state.product_name, "->", st.session_state.selected_item)
 
-        new_question = question.replace(
-            st.session_state.product_name, st.session_state.selected_item)
+        if st.session_state.selected_item is not None:
+            new_question = question.replace(
+                st.session_state.product_name, st.session_state.selected_item)
 
-        st.write("수정질문: ", new_question)
+            st.write("수정질문: ", new_question)
     
     #with st.spinner('제품에 대해 문의 중입니다. 잠시만 기다려주세요...'):
     #    answer = call_openai_chat('question', new_question)
