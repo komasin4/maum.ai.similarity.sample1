@@ -68,8 +68,12 @@ def find_similar_products_sequence_matching(user_query, product_data):
     product_data['Similarity'] = product_data['제품명'].apply(
         calculate_similarity)
 
+    # 유사도가 0.3 이상인 제품만 필터링
+    filtered_products = product_data[product_data['Similarity'] >= 0.3]
+
     # 유사도에 따라 제품들을 정렬
-    sorted_products = product_data.sort_values(
+    #sorted_products = product_data.sort_values(
+    sorted_products = filtered_products.sort_values(
         by='Similarity', ascending=False)
 
     # 상위 3개 제품 반환
@@ -129,22 +133,27 @@ if st.button('물어보기!!!'):
         st.write("제품명 : ", st.session_state.product_name)
         st.session_state.similar_products = find_similar_products_sequence_matching(
             st.session_state.product_name, product_data)
-        
-        st.session_state.item_list = list()
-        st.session_state.desc_list = list()
 
-        for index, row in st.session_state.similar_products.iterrows():
-            st.session_state.item_list.append(row.제품명)
-            st.session_state.desc_list.append("순번:" + str(row.NO) +
-                           ", 유사도:" + str(row.Similarity))
+        print("size:", st.session_state.similar_products.size)
 
-        st.session_state.selected_item = st.radio(
-            "제품을 선택하세요", st.session_state.item_list, captions=st.session_state.desc_list, index=None)
-        
-        print("st.session_state.selected_item", st.session_state.selected_item)
+        if st.session_state.similar_products.size < 1:
+            st.write("당사에 없는 제품인것 같습니다. 제품명을 다시 확인해 주세요.")
+        else:
+            st.session_state.item_list = list()
+            st.session_state.desc_list = list()
 
-        print("2|", question, "|", st.session_state.prev_question)
-        
+            for index, row in st.session_state.similar_products.iterrows():
+                st.session_state.item_list.append(row.제품명)
+                st.session_state.desc_list.append("순번:" + str(row.NO) +
+                            ", 유사도:" + str(row.Similarity))
+
+            st.session_state.selected_item = st.radio(
+                "제품을 선택하세요", st.session_state.item_list, captions=st.session_state.desc_list, index=None)
+            
+            print("st.session_state.selected_item", st.session_state.selected_item)
+
+            print("2|", question, "|", st.session_state.prev_question)
+            
         st.session_state.action_step = 1
 elif st.session_state.action_step == 1:
     print("if-2")
@@ -154,22 +163,23 @@ elif st.session_state.action_step == 1:
     st.session_state.similar_products = find_similar_products_sequence_matching(
         st.session_state.product_name, product_data)
     #st.session_state.prev_question = question
-        
-    st.session_state.selected_item = st.radio(
-        "제품을 선택하세요", st.session_state.item_list, captions=st.session_state.desc_list, index=None)
-
-    print("st.session_state.selected_item", st.session_state.selected_item)
-    print(st.session_state.product_name, "->", st.session_state.selected_item)
-
-    new_question = question.replace(
-        st.session_state.product_name, st.session_state.selected_item)
-
-    st.write("수정질문: ", new_question)
     
-    with st.spinner('제품에 대해 문의 중입니다. 잠시만 기다려주세요...'):
-        answer = call_openai_chat('question', new_question)
-        st.write("답변")
-        st.write(answer)
+    if len(st.session_state.item_list) > 0:
+        st.session_state.selected_item = st.radio(
+            "제품을 선택하세요", st.session_state.item_list, captions=st.session_state.desc_list, index=None)
+
+        print("st.session_state.selected_item", st.session_state.selected_item)
+        print(st.session_state.product_name, "->", st.session_state.selected_item)
+
+        new_question = question.replace(
+            st.session_state.product_name, st.session_state.selected_item)
+
+        st.write("수정질문: ", new_question)
+    
+    #with st.spinner('제품에 대해 문의 중입니다. 잠시만 기다려주세요...'):
+    #    answer = call_openai_chat('question', new_question)
+    #    st.write("답변")
+    #    st.write(answer)
 
     print("3|", question, "|", st.session_state.prev_question)
 
