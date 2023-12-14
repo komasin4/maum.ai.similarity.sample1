@@ -55,6 +55,70 @@ def call_openai_chat(type, question):
         print(f"OpenAI GPT-3 요청 중 오류가 발생했습니다: {e}")
         return None
 
+# Levenshtein Distance Algorithm
+def find_similar_products(user_query, product_data):
+    # Levenshtein 거리를 계산하여 가장 가까운 제품을 찾음
+    product_data['Similarity'] = product_data['제품명'].apply(
+        lambda x: levenshtein_distance(user_query, x))
+    sorted_products = product_data.sort_values('Similarity')
+    return sorted_products.head(3).to_string(index=False)
+
+# Hamming Distance
+def find_similar_products_hamming(user_query, product_data):
+    # Hamming Distance를 이용하여 가장 유사한 제품 찾기
+    # Hamming Distance는 두 문자열의 길이가 동일해야 하므로, 길이를 맞춤
+    max_length = max(len(user_query), max(len(prod)
+                     for prod in product_data['제품명']))
+    user_query_padded = user_query.ljust(max_length)
+
+    product_data['Similarity'] = product_data['제품명'].apply(
+        lambda x: sum(ch1 != ch2 for ch1, ch2 in zip(
+            x.ljust(max_length), user_query_padded)) / max_length
+    )
+
+    # 유사도(낮은 값이 더 유사함)에 따라 제품들 정렬
+    sorted_products = product_data.sort_values('Similarity')
+
+    return sorted_products.head(3).to_string(index=False)
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+
+# FuzzyWuzzy
+def find_similar_products_fuzzywuzzy(user_query, product_data):
+    # FuzzyWuzzy를 이용하여 가장 유사한 제품 찾기
+    product_data['Similarity'] = product_data['제품명'].apply(
+        lambda x: fuzz.ratio(user_query, x)
+    )
+
+    # 유사도(높은 값이 더 유사함)에 따라 제품들 정렬
+    sorted_products = product_data.sort_values('Similarity', ascending=False)
+
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
+    
+# N-gram Analysis
+def ngram_similarity(text1, text2, n=2):
+    """
+    두 문자열 간의 n-gram 기반 코사인 유사도를 계산합니다.
+    """
+    vectorizer = CountVectorizer(analyzer='char', ngram_range=(n, n))
+    ngrams = vectorizer.fit_transform([text1, text2])
+    return cosine_similarity(ngrams)[0, 1]
+
+def find_similar_products_ngram(user_query, product_data, n=2):
+    """
+    n-gram 유사도를 이용하여 가장 유사한 제품을 찾습니다.
+    """
+    product_data['Similarity'] = product_data['제품명'].apply(
+        lambda x: ngram_similarity(user_query, x, n=n)
+    )
+
+    # 유사도(높은 값이 더 유사함)에 따라 제품들 정렬
+    sorted_products = product_data.sort_values('Similarity', ascending=False)
+
+    #return sorted_products[['구분', '대분류', 'NO', '제품명', 'Similarity']].head(3).to_string(index=False)
+    return sorted_products.head(3).to_string(index=False)
+
+# Sequence Matching Algorithms 
 def find_similar_products_sequence_matching(user_query, product_data):
     """
     Sequence Matching 알고리즘을 이용하여 가장 유사한 제품을 찾는 함수.
@@ -78,6 +142,7 @@ def find_similar_products_sequence_matching(user_query, product_data):
 
     # 상위 3개 제품 반환
     return sorted_products.head(3)
+
 
 def printPrds():
     products = ""
