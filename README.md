@@ -1,8 +1,8 @@
-** requirements
+### requirements
 
-pip install streamlit
-pip install openai
-pip install python-dotenv
-pip install fuzzywuzzy
-pip install Levenshtein
-pip install scikit-learn
+pip install streamlit <br/>
+pip install openai <br/>
+pip install python-dotenv <br/>
+pip install fuzzywuzzy <br/>
+pip install Levenshtein <br/>
+pip install scikit-learn <br/>
