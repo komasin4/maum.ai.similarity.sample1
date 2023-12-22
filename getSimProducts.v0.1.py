@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 import streamlit as st
 import pandas as pd
 import numpy as np
-import openai 
+#import openai 
+from openai import AzureOpenAI
 from Levenshtein import distance as levenshtein_distance
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -22,6 +23,35 @@ def read_product_list(file_path):
         return data
     except Exception as e:
         print(f"파일을 읽는 중 오류가 발생했습니다: {e}")
+        return None
+
+
+def call_openai_chat(type, question):
+    client = AzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_KEY"),
+        api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+    )
+
+    if (type == 'product'):
+        content = "질문에서 제품명을 추출합니다. 특정 요리 이름도 제품명으로 간주합니다. 제품명만 말해줍니다. 제품명 추출이 어려울때는 '제품없음' 이라고 답변합니다."
+    else:
+        content = "당신은 대한민국 식품회사 풀무원의 제품 담당자 입니다. 사용자의 제품문의에 대한 답을 합니다."
+
+    try:
+        response = client.chat.completions.create(
+            # model="gpt-3.5-turbo",
+            model="gpt-4",
+            messages=[
+                # {"role": "system", "content": "질문에서 제품명을 추출합니다."},
+                {"role": "system", "content": content},
+                {"role": "user", "content": question}
+            ]
+        )
+        product_name = response.choices[0].message.content.strip()
+        return product_name
+    except Exception as e:
+        print(f"OpenAI GPT-3 요청 중 오류가 발생했습니다: {e}")
         return None
 
 def extract_product_name(question):
@@ -164,7 +194,9 @@ if st.button('물어보기!!!'):
 
         if st.session_state.prev_question != question:
             print("제품명 변경!!!")
-            st.session_state.product_name = extract_product_name(question)
+            #st.session_state.product_name = extract_product_name(question)
+            st.session_state.product_name = call_openai_chat(
+                'product', question)
             logger.info("execute go!!!:" + question)
                
         #product_name = "test"
