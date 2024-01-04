@@ -27,6 +27,7 @@ def read_product_list(file_path):
 
 
 def call_openai_chat(type, question):
+    logger.info("call_openai_chat:" + type + ":" + question + ":")
     client = AzureOpenAI(
         api_key=os.getenv("AZURE_OPENAI_KEY"),
         api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
@@ -55,6 +56,7 @@ def call_openai_chat(type, question):
         return None
 
 def extract_product_name(question):
+    logger.info("extract_product_name:" + question + ":")
     openai.api_key = os.getenv('OPENAI_API_KEY')  # OpenAI API 키 설정
     
     try:
@@ -197,7 +199,6 @@ if st.button('물어보기!!!'):
             #st.session_state.product_name = extract_product_name(question)
             st.session_state.product_name = call_openai_chat(
                 'product', question)
-            logger.info("execute go!!!:" + question)
                
         #product_name = "test"
         st.write("제품명 : ", st.session_state.product_name)

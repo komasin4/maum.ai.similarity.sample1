@@ -28,6 +28,7 @@ def read_product_list(file_path):
 
 
 def call_openai_chat(type, question):
+    logger.info("call_openai_chat:" + type + ":" + question + ":")
     client = AzureOpenAI(
         api_key = os.getenv("AZURE_OPENAI_KEY"),  
         api_version = os.getenv("AZURE_OPENAI_API_VERSION"),
@@ -38,7 +39,6 @@ def call_openai_chat(type, question):
         content = "질문에서 제품명을 추출합니다. 특정 요리 이름도 제품명으로 간주합니다. 제품명만 말해줍니다. 제품명 추출이 어려울때는 '제품없음' 이라고 답변합니다."
     else:
         content = "당신은 대한민국 식품회사 풀무원의 제품 담당자 입니다. 사용자의 제품문의에 대한 답을 합니다."
-
     try:
         response = client.chat.completions.create(
             # model="gpt-3.5-turbo",
